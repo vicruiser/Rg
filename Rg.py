@@ -2,6 +2,19 @@
 
 import math 
 import sys
+import os
+import argparse
+
+parser = argparse.ArgumentParser()
+
+input = parser.add_mutually_exclusive_group(required=True)
+input.add_argument('-f', '--file', nargs='+', metavar="<String>", dest="f",
+                               help='input file(s) provided \
+                                    via command line or from a file')
+input.add_argument('-l', '--listfiles', nargs='+', metavar="<String>", dest="l",
+                               help='filetext with list of files \
+                                    via command line or from a file')
+args = parser.parse_args()
 
 def Rg(filename):
 	'''
@@ -36,4 +49,20 @@ def Rg(filename):
 	return(round(rg, 3))
 
 if __name__ == '__main__':
-	print('Rg = {}'.format(Rg(sys.argv[1])))
+    
+    if args.f:
+        list_prediction_files = args.f
+    if args.l:
+        with open(args.l, 'r') as f:
+            list_prediction_files = f.readlines()
+    for pf in list_prediction_files:
+        try: 
+        	rg = Rg(pf)
+        except: 
+            rg = "NA"
+        target = os.path.splitext(os.path.basename(pf))[0]
+        
+        filename = os.path.join('radius_gyration.txt')   
+        with open(filename, 'a') as file_object:
+        	file_object.write('\t'.join(map(str,[target, rg])) + '\n')
+		#print('Rg = {}'.format(Rg(sys.argv[1])))
